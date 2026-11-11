@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XOX</title>
+<style>
+:root{--bg:#f3ead9;--kart:#fbf6ec;--murekkep:#2b2a28;--soluk:#8d8577;--x:#e4572e;--o:#2a9d8f;--golge:#d9cdb6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(circle at 50% 0,#fbf4e6,var(--bg) 60%);color:var(--murekkep);font-family:ui-rounded,"SF Pro Rounded","Nunito",system-ui,sans-serif;display:flex;align-items:center;justify-content:center;overflow:hidden;user-select:none}
+main{width:min(92vw,420px);display:flex;flex-direction:column;gap:20px;align-items:stretch}
+header{display:flex;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:44px;font-weight:900;letter-spacing:2px;line-height:1}
+h1 .x{color:var(--x)}h1 .o{color:var(--o)}
+#ses{width:46px;height:46px;border-radius:14px;border:0;background:var(--kart);box-shadow:0 4px 0 var(--golge);font-size:20px;cursor:pointer;transition:transform .1s,box-shadow .1s}
+#ses:active{transform:translateY(4px);box-shadow:0 0 0 var(--golge)}
+.skor{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.skor div{background:var(--kart);border-radius:16px;padding:10px 6px;text-align:center;box-shadow:0 4px 0 var(--golge)}
+.skor small{display:block;font-size:12px;font-weight:700;color:var(--soluk);text-transform:uppercase;letter-spacing:1px}
+.skor b{font-size:28px;font-weight:900;display:inline-block}
+.skor .sx b{color:var(--x)}.skor .so b{color:var(--o)}
+.skor b.zipla{animation:zipla .5s cubic-bezier(.3,1.8,.5,1)}
+#tahta{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;aspect-ratio:1;padding:14px;background:#e6dac3;border-radius:28px;box-shadow:inset 0 3px 8px rgba(80,60,20,.18)}
+#tahta.salla{animation:salla .5s}
+.h{border:0;padding:0;border-radius:18px;background:var(--kart);box-shadow:0 6px 0 var(--golge);cursor:pointer;transition:transform .12s,box-shadow .12s,opacity .3s;display:grid;place-items:center}
+.h:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 0 var(--golge)}
+.h:not(:disabled):active,.h.dolu{transform:translateY(5px);box-shadow:0 1px 0 var(--golge)}
+.h:disabled{cursor:default}
+.h:focus-visible,button:focus-visible{outline:3px solid var(--murekkep);outline-offset:3px}
+.h svg{width:64%;height:64%;animation:pat .35s cubic-bezier(.3,1.8,.5,1)}
+.h svg *{fill:none;stroke-width:13;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:ciz .28s ease-out forwards}
+.h svg .x{stroke:var(--x)}.h svg .o{stroke:var(--o)}
+.h svg .x+.x{animation-delay:.12s}
+#tahta.bitti .h:not(.kazanan){opacity:.45}
+.h.kazanan{animation:nabiz .7s ease-in-out infinite alternate}
+#cizgi{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#cizgi line{stroke:var(--murekkep);stroke-width:9;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:ciz .4s ease-out forwards;opacity:.85}
+#durum{text-align:center;font-size:22px;font-weight:800;min-height:30px;margin:0}
+#yeni{border:0;border-radius:18px;padding:16px;font:inherit;font-size:18px;font-weight:800;color:var(--kart);background:var(--murekkep);box-shadow:0 6px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s}
+#yeni:active{transform:translateY(6px);box-shadow:0 0 0 #000}
+#yeni.cagir{animation:nabiz .6s ease-in-out infinite alternate}
+.konfeti{position:fixed;top:-20px;width:10px;height:16px;border-radius:3px;pointer-events:none;animation:dus var(--s) cubic-bezier(.2,.6,.4,1) forwards}
+@keyframes ciz{to{stroke-dashoffset:0}}
+@keyframes pat{from{transform:scale(.5)}}
+@keyframes zipla{50%{transform:scale(1.6)}}
+@keyframes nabiz{to{transform:translateY(5px) scale(1.05)}}
+@keyframes salla{20%,60%{transform:translateX(-10px) rotate(-1deg)}40%,80%{transform:translateX(10px) rotate(1deg)}}
+@keyframes dus{to{transform:translate(var(--dx),110vh) rotate(var(--r));opacity:.9}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1><span class="x">X</span><span class="o">O</span><span class="x">X</span></h1>
+    <button id="ses" aria-label="Sesi kapat">🔊</button>
+  </header>
+  <div class="skor">
+    <div class="sx"><small>Sen · X</small><b id="sX">0</b></div>
+    <div><small>Berabere</small><b id="sD">0</b></div>
+    <div class="so"><small>Bilgisayar · O</small><b id="sO">0</b></div>
+  </div>
+  <div id="tahta"></div>
+  <p id="durum" aria-live="polite"></p>
+  <button id="yeni">Yeni el</button>
+</main>
+<script>
+const UCLU=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const SVG={
+  X:'<svg viewBox="0 0 100 100"><path class="x" pathLength="1" d="M18 18L82 82"/><path class="x" pathLength="1" d="M82 18L18 82"/></svg>',
+  O:'<svg viewBox="0 0 100 100"><circle class="o" pathLength="1" cx="50" cy="50" r="34" transform="rotate(-90 50 50)"/></svg>'
+};
+const $=id=>document.getElementById(id);
+const tahta=$('tahta'),durum=$('durum'),yeni=$('yeni');
+const sesler=Object.fromEntries(['x','o','kazan','kaybet','berabere'].map(n=>[n,new Audio('ses/'+n+'.mp3')]));
+let kare,sira,bitti,baslayan='O',sessiz=false,zaman;
+const skor={X:0,O:0,D:0};
+
+function cal(n){if(sessiz)return;const a=sesler[n].cloneNode();a.play().catch(()=>{})}
+function kazananUclu(k){return UCLU.find(u=>k[u[0]]&&k[u[0]]===k[u[1]]&&k[u[0]]===k[u[2]])}
+function bos(){return kare.map((v,i)=>v?-1:i).filter(i=>i>=0)}
+function bitiren(o){return bos().find(i=>{const k=kare.slice();k[i]=o;return kazananUclu(k)})}
+
+function koy(i,o){
+  kare[i]=o;
+  const h=tahta.children[i];
+  h.innerHTML=SVG[o];h.disabled=true;h.classList.add('dolu');
+  cal(o.toLowerCase());
+  const u=kazananUclu(kare);
+  if(u)return bitir(o,u);
+  if(!bos().length)return bitir('D');
+  sira=o==='X'?'O':'X';
+  yaz();
+  if(sira==='O')zaman=setTimeout(bilgisayar,600);
+}
+
+function bilgisayar(){
+  const b=bos();
+  let i=bitiren('O');
+  if(i===undefined&&Math.random()<.8)i=bitiren('X');
+  if(i===undefined&&!kare[4]&&Math.random()<.7)i=4;
+  if(i===undefined)i=b[Math.floor(Math.random()*b.length)];
+  koy(i,'O');
+}
+
+function yaz(){durum.textContent=sira==='X'?'Sıra sende':'Bilgisayar düşünüyor…'}
+
+function bitir(kim,u){
+  bitti=true;
+  tahta.classList.add('bitti');
+  if(u){
+    u.forEach(i=>tahta.children[i].classList.add('kazanan'));
+    const n=i=>[i%3*100+50,Math.floor(i/3)*100+50],[x1,y1]=n(u[0]),[x2,y2]=n(u[2]);
+    tahta.insertAdjacentHTML('beforeend',`<svg id="cizgi" viewBox="0 0 300 300"><line pathLength="1" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/></svg>`);
+  }
+  zaman=setTimeout(()=>{
+    skor[kim]++;
+    const s=$('s'+kim);s.textContent=skor[kim];s.classList.remove('zipla');void s.offsetWidth;s.classList.add('zipla');
+    if(kim==='X'){durum.textContent='Kazandın! 🎉';cal('kazan');konfeti()}
+    else if(kim==='O'){durum.textContent='Kaybettin 😵';cal('kaybet');tahta.classList.add('salla')}
+    else{durum.textContent='Berabere 🤝';cal('berabere')}
+    yeni.classList.add('cagir');
+  },450);
+}
+
+function konfeti(){
+  const renk=['#e4572e','#2a9d8f','#f2c14e','#2b2a28','#7d5ba6'];
+  for(let i=0;i<70;i++){
+    const p=document.createElement('i');
+    p.className='konfeti';
+    p.style.cssText=`left:${Math.random()*100}vw;background:${renk[i%5]};--s:${1.4+Math.random()*1.6}s;--dx:${Math.random()*200-100}px;--r:${Math.random()*1440-720}deg;animation-delay:${Math.random()*.4}s`;
+    document.body.append(p);
+    setTimeout(()=>p.remove(),3600);
+  }
+}
+
+function basla(){
+  clearTimeout(zaman);
+  kare=Array(9).fill(null);bitti=false;
+  baslayan=baslayan==='X'?'O':'X';sira=baslayan;
+  tahta.className='';yeni.classList.remove('cagir');
+  tahta.innerHTML=kare.map((_,i)=>`<button class="h" aria-label="Kare ${i+1}"></button>`).join('');
+  yaz();
+  if(sira==='O')zaman=setTimeout(bilgisayar,600);
+}
+
+tahta.addEventListener('click',e=>{
+  const h=e.target.closest('.h');
+  if(!h||bitti||sira!=='X')return;
+  const i=[...tahta.children].indexOf(h);
+  if(!kare[i])koy(i,'X');
+});
+yeni.addEventListener('click',basla);
+$('ses').addEventListener('click',e=>{
+  sessiz=!sessiz;
+  e.currentTarget.textContent=sessiz?'🔇':'🔊';
+  e.currentTarget.setAttribute('aria-label',sessiz?'Sesi aç':'Sesi kapat');
+});
+basla();
+</script>
+</body>
+</html>
