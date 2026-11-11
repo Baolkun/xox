@@ -21,9 +21,9 @@ h1 .x{color:var(--x)}h1 .o{color:var(--o)}
 .skor b{font-size:28px;font-weight:900;display:inline-block}
 .skor .sx b{color:var(--x)}.skor .so b{color:var(--o)}
 .skor b.zipla{animation:zipla .5s cubic-bezier(.3,1.8,.5,1)}
-#tahta{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;aspect-ratio:1;padding:14px;background:#e6dac3;border-radius:28px;box-shadow:inset 0 3px 8px rgba(80,60,20,.18)}
+#tahta{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:12px;aspect-ratio:1;padding:14px;background:#e6dac3;border-radius:28px;box-shadow:inset 0 3px 8px rgba(80,60,20,.18)}
 #tahta.salla{animation:salla .5s}
-.h{border:0;padding:0;border-radius:18px;background:var(--kart);box-shadow:0 6px 0 var(--golge);cursor:pointer;transition:transform .12s,box-shadow .12s,opacity .3s;display:grid;place-items:center}
+.h{border:0;padding:0;min-width:0;min-height:0;border-radius:18px;background:var(--kart);box-shadow:0 6px 0 var(--golge);cursor:pointer;transition:transform .12s,box-shadow .12s,opacity .3s;display:grid;place-items:center}
 .h:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 0 var(--golge)}
 .h:not(:disabled):active,.h.dolu{transform:translateY(5px);box-shadow:0 1px 0 var(--golge)}
 .h:disabled{cursor:default}
